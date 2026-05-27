@@ -1,0 +1,49 @@
+<!-- ══════════════════════════════════════════════════════════
+     PARCHE PWA — OPS Dashboard GG v5
+     Pegar DENTRO de <head>, justo después de <meta name="viewport">
+     ══════════════════════════════════════════════════════════ -->
+
+<!-- 1. Vincula el manifest -->
+<link rel="manifest" href="manifest.json">
+
+<!-- 2. Color de la barra del navegador (Android) -->
+<meta name="theme-color" content="#f0a500">
+
+<!-- 3. Soporte iOS (Safari no usa manifest para iconos) -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="OPS GG v5">
+<link rel="apple-touch-icon" href="icons/icon-192x192.png">
+
+
+<!-- ══════════════════════════════════════════════════════════
+     Pegar ANTES del cierre </body> (o al final del último <script>)
+     ══════════════════════════════════════════════════════════ -->
+<script>
+  // Registro del Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('[PWA] Service Worker registrado:', reg.scope))
+        .catch(err => console.warn('[PWA] SW error:', err));
+    });
+  }
+
+  // Banner de instalación personalizado
+  let deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    // Muestra el toast de instalación del dashboard
+    if (typeof showToast === 'function') {
+      showToast('📲 App disponible — abre el menú del navegador para instalar');
+    }
+  });
+
+  window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    if (typeof showToast === 'function') {
+      showToast('✅ OPS Dashboard instalado como app');
+    }
+  });
+</script>
